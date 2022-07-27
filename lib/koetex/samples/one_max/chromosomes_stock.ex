@@ -28,10 +28,19 @@ defmodule Koetex.Samples.OneMax.ChromosomesStock do
   end
 
   @doc """
+  API 終了
+  """
+  def exit do
+    if Process.whereis(@name) do
+      Agent.stop(@name, :normal)
+    end
+  end
+
+  @doc """
   API 個体情報の蓄積
   - ただし、蓄積されている情報と比較して可否を決定
   """
-  def push({fitness, chromosome, _phenotype} = data) do
+  def push({fitness, _chromosome, _phenotype} = data) do
     {size, sum} = Agent.get(@name, fn {attrs, _} -> {attrs.size, attrs.sum} end)
     result = if stockable?(fitness, size, sum), do: :accept, else: :refuse
     if result == :accept do
@@ -53,6 +62,13 @@ defmodule Koetex.Samples.OneMax.ChromosomesStock do
           {fitness, chromosome}
         end)
     end)
+  end
+
+  @doc """
+  ベストな個体表示
+  """
+  def best do
+    Agent.get(@name, fn {attrs, _} -> attrs.best end)
   end
 
   defp init_attrs([]), do: @attrs

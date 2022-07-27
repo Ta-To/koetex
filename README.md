@@ -1,3 +1,24 @@
+WORK IN PROGRESS
+
+run sample on server
+
+`iex --name "server@127.0.0.1" -S mix`
+
+```
+Koetex.Samples.OneMax.start()
+```
+
+run sample on client
+
+`iex --name "node@127.0.0.1" -S mix`
+
+```
+Node.connect(:"server@127.0.0.1")
+Koetex.Samples.OneMax.start_as_client()
+Koetex.Samples.OneMax.spawn_indiv()
+```
+
+
 # Koetex
 
 Koetex is a Genetic Algorithm library run parallel.
