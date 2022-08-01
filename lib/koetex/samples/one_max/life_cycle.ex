@@ -3,18 +3,18 @@ defmodule Koetex.Samples.OneMax.LifeCycle do
   alias Koetex.Samples.OneMax.{Chromosome, Indiv}
 
   @name __MODULE__
-  # 個体の生存回数: 指定回数の再生産フェーズ後に削除
-  @max_survival_count 10
-  # 生存個体の休眠スケール: 指定数程度の個体が休眠中に評価されると考えられる
-  @break_time_scale 10
 
   @doc """
   API 開始
   """
-  def start_link(args) do
-    max_survival_count = Keyword.get(args, :max_survival_count, @max_survival_count)
-    break_time_scale = Keyword.get(args, :break_time_scale, @break_time_scale)
-    GenServer.start_link(__MODULE__, %{max_survival_count: max_survival_count, break_time_scale: break_time_scale}, name: @name)
+  def start_link(_args) do
+    GenServer.start_link(
+      __MODULE__,
+      %{
+        max_survival_count: max_survival_count(),
+        break_time_scale: break_time_scale()
+      }, name: @name
+    )
   end
 
   def be_born(chromosome \\ nil) do
@@ -76,5 +76,13 @@ defmodule Koetex.Samples.OneMax.LifeCycle do
   def handle_cast({:gone, pid_indiv}, config) do
     Agent.stop(pid_indiv, :normal)
     {:noreply, config}
+  end
+
+  defp max_survival_count do
+    Application.get_env(:koetex, Koetex.LifeCycle)[:max_survival_count]
+  end
+
+  defp break_time_scale do
+    Application.get_env(:koetex, Koetex.LifeCycle)[:break_time_scale]
   end
 end

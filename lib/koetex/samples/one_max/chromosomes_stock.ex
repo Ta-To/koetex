@@ -2,7 +2,6 @@ defmodule Koetex.Samples.OneMax.ChromosomesStock do
   use Agent
 
   @name __MODULE__
-  @default_scale 100
 
   @attrs %{
     size: 0,
@@ -17,7 +16,7 @@ defmodule Koetex.Samples.OneMax.ChromosomesStock do
 
   def start_link(args) do
     inits = Keyword.get(args, :inits, [])
-    scale = Keyword.get(args, :scale, @default_scale)
+    scale = chromosomes_stock_scale()
     Agent.start_link(fn ->
       attrs =
         inits
@@ -129,5 +128,9 @@ defmodule Koetex.Samples.OneMax.ChromosomesStock do
       end)
       |> then(& {&1, config})
     end)
+  end
+
+  defp chromosomes_stock_scale do
+    Application.get_env(:koetex, Koetex)[:chromosomes_stock_scale]
   end
 end

@@ -2,18 +2,19 @@ defmodule Koetex.Samples.OneMax.Provider do
   use GenServer
 
   @name __MODULE__
-  @global_name :ga_one_max_provider
-  @max_trial_count 1010
 
   alias Koetex.Samples.OneMax.ChromosomesStock
 
   @doc """
   API 開始
   """
-  def start_link(args) do
-    max_trial_count = Keyword.get(args, :max_trial_count, @max_trial_count)
-    {:ok, pid} = GenServer.start_link(__MODULE__, %{max_trial_count: max_trial_count, trial_count: 0}, name: @name)
-    :global.register_name(@global_name, pid)
+  def start_link(_args) do
+    {:ok, pid} = GenServer.start_link(
+      __MODULE__,
+      %{trial_count: 0, max_trial_count: max_trial_count()},
+      name: @name
+    )
+    :global.register_name(global_name(), pid)
     {:ok, pid}
   end
 
@@ -23,7 +24,7 @@ defmodule Koetex.Samples.OneMax.Provider do
   def share_chromosome(fitness, chromosome, phenotype) do
     try do
       GenServer.call(
-        :global.whereis_name(@global_name),
+        :global.whereis_name(global_name()),
         {:share, {fitness, chromosome, phenotype}}
       )
     catch
@@ -45,7 +46,7 @@ defmodule Koetex.Samples.OneMax.Provider do
   API 接続確認
   """
   def connected? do
-    :global.whereis_name(@global_name)
+    :global.whereis_name(global_name())
     |> case do
       :undefined -> false
       _ -> true
@@ -83,5 +84,14 @@ defmodule Koetex.Samples.OneMax.Provider do
   defp disconnect_nodes do
     Node.list(:connected)
     |> Enum.each(& Node.disconnect/1)
+  end
+
+  defp global_name do
+    Application.get_env(:koetex, Koetex)[:provider_global_name]
+    |> String.to_atom()
+  end
+
+  defp max_trial_count do
+    Application.get_env(:koetex, Koetex)[:max_trial_count]
   end
 end
