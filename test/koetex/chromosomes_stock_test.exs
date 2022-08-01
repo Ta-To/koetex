@@ -1,7 +1,7 @@
-defmodule Koetex.Samples.OneMax.ChromosomesStockTest do
+defmodule Koetex.ChromosomesStockTest do
   use ExUnit.Case
 
-  alias Koetex.Samples.OneMax.ChromosomesStock
+  alias Koetex.ChromosomesStock
 
   defp get_attrs do
     :sys.get_state(ChromosomesStock) |> elem(0)
@@ -49,12 +49,14 @@ defmodule Koetex.Samples.OneMax.ChromosomesStockTest do
             ]
           )
         :full ->
+          prev_env = Application.get_env(:koetex, Koetex)
+          Application.put_env(:koetex, Koetex, Keyword.put(prev_env, :chromosomes_stock_scale, 2))
+          on_exit(fn -> Application.put_env(:koetex, Koetex, prev_env) end)
           ChromosomesStock.start_link(
             inits: [
               {6, [1, 1, 1], [2, 2, 2]},
               {8, [2, 1, 1], [4, 2, 2]}
-            ],
-            scale: 2
+            ]
           )
       end
       {:ok, []}

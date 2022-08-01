@@ -1,9 +1,9 @@
-defmodule Koetex.Samples.OneMax.Provider do
+defmodule Koetex.Provider do
   use GenServer
 
   @name __MODULE__
 
-  alias Koetex.Samples.OneMax.ChromosomesStock
+  alias Koetex.ChromosomesStock
 
   @doc """
   API 開始
@@ -11,7 +11,7 @@ defmodule Koetex.Samples.OneMax.Provider do
   def start_link(_args) do
     {:ok, pid} = GenServer.start_link(
       __MODULE__,
-      %{trial_count: 0, max_trial_count: max_trial_count()},
+      %{sharing_count: 0, max_sharing_count: max_sharing_count()},
       name: @name
     )
     :global.register_name(global_name(), pid)
@@ -68,9 +68,9 @@ defmodule Koetex.Samples.OneMax.Provider do
   def handle_call({:share, data}, _from, state) do
     response = ChromosomesStock.push(data)
     chromosome = ChromosomesStock.get_random_chromosome()
-    state = Map.update!(state, :trial_count, & &1 + 1)
-    if state.trial_count >= state.max_trial_count do
-      IO.inspect(ChromosomesStock.best, label: "TrialCountOver")
+    state = Map.update!(state, :sharing_count, & &1 + 1)
+    if state.sharing_count >= state.max_sharing_count do
+      IO.inspect(ChromosomesStock.best, label: "SharingCountOver")
       Process.send_after(Process.whereis(@name), :exit, 10)
     end
     {:reply, {response, chromosome}, state}
@@ -91,7 +91,7 @@ defmodule Koetex.Samples.OneMax.Provider do
     |> String.to_atom()
   end
 
-  defp max_trial_count do
-    Application.get_env(:koetex, Koetex)[:max_trial_count]
+  defp max_sharing_count do
+    Application.get_env(:koetex, Koetex)[:max_sharing_count]
   end
 end

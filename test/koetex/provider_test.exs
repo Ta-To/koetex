@@ -1,16 +1,20 @@
-defmodule Koetex.Samples.OneMax.ProviderTest do
+defmodule Koetex.ProviderTest do
   use ExUnit.Case
 
-  alias Koetex.Samples.OneMax.Provider
-  alias Koetex.Samples.OneMax.ChromosomesStock
+  alias Koetex.Provider
+  alias Koetex.ChromosomesStock
 
-  def get_num_trial do
-    :sys.get_state(Provider).num_trial
+  def get_sharing_count do
+    :sys.get_state(Provider).sharing_count
   end
 
   describe "share_chromosome/3" do
     setup do
-      Provider.start_link(max_trial: 2)
+      prev_env = Application.get_env(:koetex, Koetex)
+      Application.put_env(:koetex, Koetex, Keyword.put(prev_env, :max_sharing_count, 2))
+      on_exit(fn -> Application.put_env(:koetex, Koetex, prev_env) end)
+
+      Provider.start_link([])
       ChromosomesStock.start_link([])
       {:ok, []}
     end
@@ -19,12 +23,12 @@ defmodule Koetex.Samples.OneMax.ProviderTest do
       assert {:accept, _} = Provider.share_chromosome(0, [0, 0, 0], [])
     end
 
-    test "up trial count" do
+    test "up sharing count" do
       Provider.share_chromosome(0, [0, 0, 0], [])
-      assert 1 = get_num_trial()
+      assert 1 = get_sharing_count()
     end
 
-    test "exit when num of trial is over" do
+    test "exit when num of sharing is over" do
       Provider.share_chromosome(0, [0, 0, 0], [])
       Provider.share_chromosome(0, [0, 0, 0], [])
       :timer.sleep(1000)

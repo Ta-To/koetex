@@ -5,7 +5,7 @@ defmodule Koetex.Samples.OneMax.Chromosome do
 
   alias Koetex.Samples.OneMax.Gene
 
-  @size 100
+  @size 10
 
   def new do
     (1..@size)

@@ -1,4 +1,4 @@
-defmodule Koetex.Samples.OneMax.ChromosomesStock do
+defmodule Koetex.ChromosomesStock do
   use Agent
 
   @name __MODULE__

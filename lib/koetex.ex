@@ -3,16 +3,17 @@ defmodule Koetex do
   Documentation for `Koetex`.
   """
 
-  @doc """
-  Hello world.
+  alias Koetex.{Provider, ChromosomesStock}
 
-  ## Examples
+  def start do
+    Provider.start_link([])
+    ChromosomesStock.start_link([])
+    :ok
+  end
 
-      iex> Koetex.hello()
-      :world
-
-  """
-  def hello do
-    :world
+  def exit do
+    Provider.exit()
+    ChromosomesStock.exit()
+    :ok
   end
 end
